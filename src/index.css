@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .text-border-yellow {
+    color: white;
+    -webkit-text-stroke: 5px yellow;
+  }
+}
