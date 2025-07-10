@@ -4,38 +4,6 @@ import spinner from '/pngwing.com.svg';
 import namebox from '/nameBox.png';
 
 const Gamepage = () => {
-  const mockNames = [
-    { name: "Abhishek Jagtap", city: "Pune", flag: "winner" },
-    { name: "Sachin Pingle", city: "Pune", flag: "winner" },
-    { name: "Vaibhav More", city: "Pune", flag: "winner" },
-    { name: "Saurabh Kadam", city: "Pune", flag: "winner" },
-    { name: "Ganesh Pawar", city: "Pune", flag: "winner" },
-    { name: "Nikhil Shinde", city: "Pune", flag: "winner" },
-    { name: "Pratik Patil", city: "Pune", flag: "winner" },
-    { name: "Aditya Bhosale", city: "Pune", flag: "winner" },
-    { name: "Mayur Thorat", city: "Pune", flag: "winner" },
-    { name: "Rohit Chavan", city: "Pune", flag: "winner" },
-    { name: "Swapnil Deshmukh", city: "Mumbai", flag: "winner" },
-    { name: "Rakesh Jadhav", city: "Nashik", flag: "winner" },
-    { name: "Aniket Salunke", city: "Nagpur", flag: "winner" },
-    { name: "Dinesh Gawade", city: "Kolhapur", flag: "winner" },
-    { name: "Sunil Naik", city: "Aurangabad", flag: "winner" },
-    { name: "Kunal Khare", city: "Pune", flag: "loser" },
-    { name: "Akshay Satpute", city: "Pune", flag: "loser" },
-    { name: "Vikram Gaikwad", city: "Pune", flag: "loser" },
-    { name: "Omkar Rane", city: "Pune", flag: "loser" },
-    { name: "Pritam Kale", city: "Pune", flag: "loser" },
-    { name: "Rajesh Londhe", city: "Mumbai", flag: "loser" },
-    { name: "Mahesh Dhavale", city: "Mumbai", flag: "loser" },
-    { name: "Amit Bhujbal", city: "Mumbai", flag: "loser" },
-    { name: "Nilesh Kharat", city: "Nashik", flag: "loser" },
-    { name: "Harshal Gole", city: "Nashik", flag: "loser" },
-    { name: "Shivraj Mule", city: "Nagpur", flag: "loser" },
-    { name: "Yogesh Darade", city: "Nagpur", flag: "loser" },
-    { name: "Vishal Kharmale", city: "Kolhapur", flag: "loser" },
-    { name: "Mangesh Tamboli", city: "Kolhapur", flag: "loser" },
-    { name: "Tejas Pujari", city: "Aurangabad", flag: "loser" }
-  ];
 
   const [names, setNames] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -59,10 +27,36 @@ const Gamepage = () => {
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem('allNames', JSON.stringify(mockNames));
-    setNames(mockNames);
+    // Fetch employee data from API and crosscheck with localStorage
+    fetch('https://eventapi.snapgrab.in/api/game/employees?eventID=4')
+      .then(response => response.json())
+      .then(data => {
+        if (data.Status === 200 && data.data) {
+          const storedNames = localStorage.getItem('allNames');
+          const existingNames = storedNames ? JSON.parse(storedNames) : [];
+          const existingNameSet = new Set(existingNames.map(entry => entry.name.toLowerCase()));
+
+          // Filter out names that are already in localStorage
+          const newNames = data.data
+            .filter(employee => !existingNameSet.has(employee.Name.toLowerCase()))
+            .map(employee => ({
+              name: employee.Name,
+              city: employee.City,
+              flag: employee.Type,
+              empId: employee.EmpID
+            }));
+
+          // Combine existing names with new names
+          const updatedNames = [...existingNames, ...newNames];
+
+          localStorage.setItem('allNames', JSON.stringify(updatedNames));
+          setNames(updatedNames);
+        }
+      })
+      .catch(error => console.error('Error fetching employees:', error));
   }, []);
 
+  // Handle keyboard events for draw mode selection
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isSpinning) return;
@@ -78,15 +72,24 @@ const Gamepage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSpinning, winners, names, customNames, useCustomNames, forcedWinners]);
 
+  // Handle confetti animation for winner celebration
   useEffect(() => {
     if (showCelebration) {
+      let count = 0;
+      const maxBursts = 5;
       const interval = setInterval(() => {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 1 });
+        if (count < maxBursts) {
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 1 });
+          count++;
+        } else {
+          clearInterval(interval);
+        }
       }, 800);
       return () => clearInterval(interval);
     }
   }, [showCelebration]);
 
+  // Add CSS animations
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -105,6 +108,7 @@ const Gamepage = () => {
     document.head.appendChild(style);
   }, []);
 
+  // Process custom names input
   useEffect(() => {
     const arr = customNamesInput
       .split('\n')
@@ -114,7 +118,7 @@ const Gamepage = () => {
     setCustomNames(arr);
   }, [customNamesInput]);
 
-  // Updated drawWinner to accept mode
+  // Draw winner function with API call for winner declaration
   const drawWinner = (mode = drawMode) => {
     if (isSpinning || names.length === 0) {
       if (!names.length) alert("No names in the list!");
@@ -174,6 +178,21 @@ const Gamepage = () => {
       container.style.transform = `translateY(-${scrollOffset}px)`;
     });
     setTimeout(() => {
+      // Send winner declaration to API
+      fetch('https://eventapi.snapgrab.in/api/game/set-winner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventID: "4",
+          empId: winner.empId
+        })
+      })
+        .then(response => response.json())
+        .then(data => console.log('Winner declared:', data))
+        .catch(error => console.error('Error declaring winner:', error));
+
       setNames(prev => prev.filter(entry => entry.name !== winner.name));
       setShowCelebration(true);
       setWinners(prev => {
@@ -196,7 +215,7 @@ const Gamepage = () => {
   const closeSettings = () => setShowSettings(false);
   const saveSettings = () => closeSettings();
   const exportCSV = () => {
-    const csv = ["name,city,flag", ...names.map(n => `${n.name},${n.city},${n.flag}`)].join("\n");
+    const csv = ["name,city,flag,empId", ...names.map(n => `${n.name},${n.city},${n.flag},${n.empId}`)].join("\n");
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -213,8 +232,8 @@ const Gamepage = () => {
       const text = event.target.result;
       const lines = text.split('\n').slice(1); // skip header
       const data = lines.map(line => {
-        const [name, city, flag] = line.split(',');
-        return name ? { name, city, flag } : null;
+        const [name, city, flag, empId] = line.split(',');
+        return name ? { name, city, flag, empId } : null;
       }).filter(Boolean);
       setNames(data);
     };
@@ -230,17 +249,18 @@ const Gamepage = () => {
     >
       {/* Top Buttons */}
       <div className="absolute top-4 right-4 flex gap-3 z-20">
+        <button onClick={openSettings} style={{ opacity: '1%' }} className="text-white text-2xl cursor-pointer">⚙️</button>
+
         <button
           onClick={() =>
             !document.fullscreenElement
               ? document.documentElement.requestFullscreen()
               : document.exitFullscreen()
           }
-          className="text-white text-2xl"
+          className="text-white text-2xl cursor-pointer"
         >
           ⛶
         </button>
-        <button onClick={openSettings} className="text-white text-2xl">⚙️</button>
       </div>
 
       {/* Rotating SVG */}
@@ -274,7 +294,7 @@ const Gamepage = () => {
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="fixed inset-0 z-30 bg-red-700 text-white flex items-center justify-end">
+        <div className="fixed inset-0 z-30 bg464-red-700 text-white flex items-center justify-end">
           <div className="w-full sm:w-[400px] h-full p-6 shadow-xl bg-red-700 overflow-y-auto" style={{ animation: 'slideRight 0.3s ease-out forwards' }}>
             <h2 className="text-2xl font-bold mb-4">Settings</h2>
             <div className="flex flex-col gap-2 mb-4">
