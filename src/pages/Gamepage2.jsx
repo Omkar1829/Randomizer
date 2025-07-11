@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { useNavigate } from 'react-router-dom';
 import spinner from '/pngwing.com.svg';
 import namebox from '/nameBox.png';
 
 const Gamepage = () => {
-
+  const navigate = useNavigate();
   const [names, setNames] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -20,7 +21,7 @@ const Gamepage = () => {
   const [customNames, setCustomNames] = useState([]);
   const [drawMode, setDrawMode] = useState(3); // 1: Pune, 2: Non-Pune, 3: All
   const [winners, setWinners] = useState(() => {
-    const stored = localStorage.getItem('winners');
+    const stored = localStorage.getItem('Megawinners');
     return stored ? JSON.parse(stored) : [];
   });
 
@@ -32,7 +33,7 @@ const Gamepage = () => {
       .then(response => response.json())
       .then(data => {
         if (data.Status === 200 && data.data) {
-          const storedNames = localStorage.getItem('allNames');
+          const storedNames = localStorage.getItem('MegaDraw');
           const existingNames = storedNames ? JSON.parse(storedNames) : [];
           const existingNameSet = new Set(existingNames.map(entry => entry.name.toLowerCase()));
 
@@ -49,7 +50,7 @@ const Gamepage = () => {
           // Combine existing names with new names
           const updatedNames = [...existingNames, ...newNames];
 
-          localStorage.setItem('allNames', JSON.stringify(updatedNames));
+          localStorage.setItem('MegaDraw', JSON.stringify(updatedNames));
           setNames(updatedNames);
         }
       })
@@ -197,7 +198,7 @@ const Gamepage = () => {
       setShowCelebration(true);
       setWinners(prev => {
         const updated = [...prev, winner];
-        localStorage.setItem('winners', JSON.stringify(updated));
+        localStorage.setItem('Megawinners', JSON.stringify(updated));
         return updated;
       });
       if (enableSound) {
@@ -261,6 +262,10 @@ const Gamepage = () => {
         >
           ⛶
         </button>
+      </div>
+      <div className="absolute top-4 left-4 flex gap-3 z-20">
+        <button onClick={() => navigate('/offline')} style={{ opacity: '100%' }} className="text-white text-2xl cursor-pointer">O</button>
+        <button onClick={() => navigate('/')} style={{ opacity: '100%' }} className="text-white text-2xl cursor-pointer">/</button>
       </div>
 
       {/* Rotating SVG */}

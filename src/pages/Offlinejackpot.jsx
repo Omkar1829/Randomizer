@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import spinner from '/pngwing.com.svg';
 
 const Offlinejackpot = () => {
+    const navigate = useNavigate();
     const [isSpinning, setIsSpinning] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [removeWinner, setRemoveWinner] = useState(false);
@@ -202,6 +204,10 @@ const Offlinejackpot = () => {
                     ⛶
                 </button>
                 <button onClick={openSettings} className="text-white text-2xl">⚙️</button>
+            </div>
+            <div className="absolute top-4 left-4 flex gap-3 z-20">
+                <button onClick={() => navigate('/')} style={{ opacity: '100%' }} className="text-white text-2xl cursor-pointer">O</button>
+                <button onClick={() => navigate('/megadraw')} style={{ opacity: '100%' }} className="text-white text-2xl cursor-pointer">M</button>
             </div>
 
             {/* Rotating SVG */}

@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import spinner from '/pngwing.com.svg';
 import namebox from '/nameBox.png';
 
 const Gamepage = () => {
-
+  const navigate = useNavigate();
   const [names, setNames] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -27,7 +28,6 @@ const Gamepage = () => {
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    // Fetch employee data from API and crosscheck with localStorage
     fetch('https://eventapi.snapgrab.in/api/game/employees?eventID=4')
       .then(response => response.json())
       .then(data => {
@@ -36,7 +36,6 @@ const Gamepage = () => {
           const existingNames = storedNames ? JSON.parse(storedNames) : [];
           const existingNameSet = new Set(existingNames.map(entry => entry.name.toLowerCase()));
 
-          // Filter out names that are already in localStorage
           const newNames = data.data
             .filter(employee => !existingNameSet.has(employee.Name.toLowerCase()))
             .map(employee => ({
@@ -46,9 +45,7 @@ const Gamepage = () => {
               empId: employee.EmpID
             }));
 
-          // Combine existing names with new names
           const updatedNames = [...existingNames, ...newNames];
-
           localStorage.setItem('allNames', JSON.stringify(updatedNames));
           setNames(updatedNames);
         }
@@ -56,7 +53,6 @@ const Gamepage = () => {
       .catch(error => console.error('Error fetching employees:', error));
   }, []);
 
-  // Handle keyboard events for draw mode selection
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isSpinning) return;
@@ -72,7 +68,6 @@ const Gamepage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSpinning, winners, names, customNames, useCustomNames, forcedWinners]);
 
-  // Handle confetti animation for winner celebration
   useEffect(() => {
     if (showCelebration) {
       let count = 0;
@@ -89,26 +84,24 @@ const Gamepage = () => {
     }
   }, [showCelebration]);
 
-  // Add CSS animations
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
-          @keyframes slideRight {
-            0% { transform: translateX(100%); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-          }
-          @keyframes spin-slow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          .animate-spin-slow {
-            animation: spin-slow 15s linear infinite;
-          }
-        `;
+      @keyframes slideRight {
+        0% { transform: translateX(100%); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes spin-slow {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 15s linear infinite;
+      }
+    `;
     document.head.appendChild(style);
   }, []);
 
-  // Process custom names input
   useEffect(() => {
     const arr = customNamesInput
       .split('\n')
@@ -118,7 +111,6 @@ const Gamepage = () => {
     setCustomNames(arr);
   }, [customNamesInput]);
 
-  // Draw winner function with API call for winner declaration
   const drawWinner = (mode = drawMode) => {
     if (isSpinning || names.length === 0) {
       if (!names.length) alert("No names in the list!");
@@ -178,7 +170,6 @@ const Gamepage = () => {
       container.style.transform = `translateY(-${scrollOffset}px)`;
     });
     setTimeout(() => {
-      // Send winner declaration to API
       fetch('https://eventapi.snapgrab.in/api/game/set-winner', {
         method: 'POST',
         headers: {
@@ -230,7 +221,7 @@ const Gamepage = () => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target.result;
-      const lines = text.split('\n').slice(1); // skip header
+      const lines = text.split('\n').slice(1);
       const data = lines.map(line => {
         const [name, city, flag, empId] = line.split(',');
         return name ? { name, city, flag, empId } : null;
@@ -247,10 +238,8 @@ const Gamepage = () => {
           'linear-gradient(240deg, #ff462d .13%, #ff422f 26.19%, #ff3634 52.6%, #ff223c 79.08%, #ff0c45)',
       }}
     >
-      {/* Top Buttons */}
       <div className="absolute top-4 right-4 flex gap-3 z-20">
-        <button onClick={openSettings} style={{ opacity: '1%' }} className="text-white text-2xl cursor-pointer">⚙️</button>
-
+        <button onClick={openSettings} style={{ opacity: '10%' }} className="text-white text-2xl cursor-pointer">⚙️</button>
         <button
           onClick={() =>
             !document.fullscreenElement
@@ -262,19 +251,20 @@ const Gamepage = () => {
           ⛶
         </button>
       </div>
+      <div className="absolute top-4 left-4 flex gap-3 z-20">
+        <button onClick={() => navigate('/offline')} style={{ opacity: '10%' }} className="text-white text-2xl cursor-pointer">O</button>
+        <button onClick={() => navigate('/megadraw')} style={{ opacity: '10%' }} className="text-white text-2xl cursor-pointer">M</button>
+      </div>
 
-      {/* Rotating SVG */}
       <div className={`absolute z-0 opacity-20  ${showCelebration ? 'animate-spin-slow block' : 'hidden'}`}>
         <img src={spinner} alt="rotating svg" />
       </div>
 
-      {/* Title */}
       <div className="relative w-full flex flex-col items-center justify-center text-center z-10">
         <h1 className="text-[73px] font-bold mb-10 text-yellow-400 drop-shadow fixed">Lucky Draw</h1>
         <h1 className="text-[70px] font-bold mb-10 text-white drop-shadow fixed">Lucky Draw</h1>
       </div>
 
-      {/* Winner Box */}
       <div className="relative d-flex items-center justify-center">
         <div className="relative mt-[80px] w-[700px] h-[100px] overflow-hidden outline-yellow-400 rounded-xl outline-[30px] bg-white shadow-2xl z-10">
           <div
@@ -284,7 +274,6 @@ const Gamepage = () => {
         </div>
       </div>
 
-      {/* Draw Button */}
       <button
         onClick={drawWinner}
         className="mt-10 bg-yellow-400 hover:bg-yellow-300 text-white text-3xl font-bold py-2 px-5 rounded-lg shadow-black shadow-2xl z-10"
@@ -292,7 +281,6 @@ const Gamepage = () => {
         Draw
       </button>
 
-      {/* Settings Panel */}
       {showSettings && (
         <div className="fixed inset-0 z-30 bg464-red-700 text-white flex items-center justify-end">
           <div className="w-full sm:w-[400px] h-full p-6 shadow-xl bg-red-700 overflow-y-auto" style={{ animation: 'slideRight 0.3s ease-out forwards' }}>
