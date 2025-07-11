@@ -42,7 +42,7 @@ const Gamepage = () => {
             .map(employee => ({
               name: employee.Name,
               city: employee.City,
-              flag: employee.Type,
+              flag: '',
               empId: employee.EmpID
             }));
 

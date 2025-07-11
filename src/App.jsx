@@ -10,7 +10,7 @@ function App() {
         <Route path="/" element={<Gamepage />} />
         <Route path="/offline" element={<Offlinejackpot />} />
         {/* Optional route if you want to use Gamepage2 later */}
-        {/* <Route path="/gamepage2" element={<Gamepage2 />} /> */}
+        <Route path="/megadraw" element={<Gamepage2 />} />
       </Routes>
     </Router>
   );
