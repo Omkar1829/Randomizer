@@ -29,7 +29,7 @@ const Gamepage = () => {
 
   useEffect(() => {
     // Fetch employee data from API and crosscheck with localStorage
-    fetch('https://eventapi.snapgrab.in/api/game/employees?eventID=4')
+    fetch('https://eventapi.snapgrab.in/api/game/completed-all-activities?eventID=4')
       .then(response => response.json())
       .then(data => {
         if (data.Status === 200 && data.data) {
