@@ -191,7 +191,7 @@ const Offlinejackpot = () => {
             }}
             // 'linear-gradient(240deg, #ff462d .13%, #ff422f 26.19%, #ff3634 52.6%, #ff223c 79.08%, #ff0c45)',
             >
-                <img src="/Tech-Saga-Logo-01.png" className='fixed top-5 right-5 w-[120px] h-[80px]' />
+                <img src="/Tech-Saga-Logo-01.png" className='fixed top-5 right-5 w-[230px] h-[150px]' />
             {/* Top Buttons */}
             <div className="absolute top-4 right-4 flex gap-3 z-20">
                 <button
