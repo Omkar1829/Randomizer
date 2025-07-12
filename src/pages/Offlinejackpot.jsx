@@ -187,10 +187,11 @@ const Offlinejackpot = () => {
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-evenly overflow-hidden text-white font-sans"
             style={{
-                background:
-                    'linear-gradient(240deg, #ff462d .13%, #ff422f 26.19%, #ff3634 52.6%, #ff223c 79.08%, #ff0c45)',
+                background: "#ffffff",
             }}
-        >
+            // 'linear-gradient(240deg, #ff462d .13%, #ff422f 26.19%, #ff3634 52.6%, #ff223c 79.08%, #ff0c45)',
+            >
+                <img src="/Tech-Saga-Logo-01.png" className='fixed top-5 right-5 w-[120px] h-[80px]' />
             {/* Top Buttons */}
             <div className="absolute top-4 right-4 flex gap-3 z-20">
                 <button
@@ -218,7 +219,7 @@ const Offlinejackpot = () => {
             {/* Title */}
             <div className="relative w-full flex flex-col items-center justify-center text-center z-10">
                 <h1 className="text-[73px] font-bold mb-10 text-yellow-400 drop-shadow fixed">Lucky Draw</h1>
-                <h1 className="text-[70px] font-bold mb-10 text-white drop-shadow fixed">Lucky Draw</h1>
+                <h1 className="text-[70px] font-bold mb-10 text-[#b19631] drop-shadow fixed">Lucky Draw</h1>
             </div>
 
             {/* Winner Box */}
